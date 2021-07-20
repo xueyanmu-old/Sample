@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/navgraph_main.xml"
+    app:startDestination="@id/firstFragment">
+
+    <fragment
+        android:id="@+id/firstFragment"
+        android:name="com.poatek.sample.ui.scenes.first.FirstFragment"
+        android:label="First Fragment"
+        tools:layout="@layout/fragment_first" >
+        <action
+            android:id="@+id/action_firstFragment_to_secondFragment"
+            app:destination="@id/secondFragment" />
+        <action
+            android:id="@+id/action_firstFragment_to_thirdFragment"
+            app:destination="@id/thirdFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/secondFragment"
+        tools:layout="@layout/fragment_second"
+        android:name="com.poatek.sample.ui.scenes.second.SecondFragment"
+        android:label="Second Fragment" />
+    <fragment
+        android:id="@+id/thirdFragment"
+        android:name="com.poatek.sample.ui.scenes.third.ThirdFragment"
+        android:label="ThirdFragment" />
+</navigation>
