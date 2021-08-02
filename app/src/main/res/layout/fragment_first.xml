@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
-
     <data>
         <variable
             name="viewModel"
@@ -15,37 +14,58 @@
         android:gravity="center"
         tools:context="ui.scenes.first.FirstFragment">
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="This is the first fragment!" />
-
+        <!-- TODO: fix new xml id-->
         <Button
-            android:layout_margin="32dp"
             android:id="@+id/secondFragmentButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Open second fragment" />
+            android:layout_margin="3dp"
+            android:text="@string/open_second_fragment" />
 
         <Button
             android:id="@+id/thirdFragmentButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_margin="32dp"
-            android:text="Open third fragment" />
+            android:layout_margin="3dp"
+            android:text="@string/open_third_fragment" />
+
+        <TextView
+            android:id="@+id/analyze_result_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            tools:layout_editor_absoluteX="60dp" />
 
         <ImageView
             android:id="@+id/imageView"
-            android:layout_width="200dp"
-            android:layout_height="200dp"/>
+            android:layout_width="150dp"
+            android:layout_height="150dp"
+            android:layout_margin="3dp"
+            android:src="@drawable/image_border"
+            android:contentDescription="@string/selfie_here" />
+
+        <ImageView
+            android:id="@+id/imageViewID"
+            android:layout_width="150dp"
+            android:layout_height="150dp"
+            android:layout_margin="3dp"
+            android:src="@drawable/image_border"
+            android:contentDescription="@string/id_photo_here" />
+
+        <Button
+            android:id="@+id/uploadImages"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="3dp"
+            android:text="@string/upload_images" />
 
         <TextView
             android:id="@+id/viewModelDate"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="128dp"
-            tools:text="ViewModel initialized..."
-            android:text="@{viewModel.viewModelInitDate}" />
+            android:layout_marginTop="12dp"
+            android:text="@{viewModel.viewModelInitDate}"
+            tools:text="ViewModel initialized..." />
 
     </LinearLayout>
 </layout>
+

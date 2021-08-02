@@ -11,6 +11,8 @@ class FirstViewModel : ViewModel() {
 
     var expectedImageOutputPath: String? = null
 
+    var expectedImageOutputPathID: String? = null
+
     init {
         refreshInitializationDate()
     }

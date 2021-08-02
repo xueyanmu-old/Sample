@@ -1,5 +1,6 @@
+
+
 package com.poatek.sample.ui.scenes.first
-package com.example.deepfaceapplication
 
 import android.app.Activity
 import android.content.Intent
@@ -12,17 +13,22 @@ import android.provider.MediaStore
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
+import android.widget.ImageView
 import android.widget.Toast
+import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.fragment.app.viewModels
+import com.poatek.sample.R
 import com.poatek.sample.databinding.FragmentFirstBinding
 import com.poatek.sample.ui.base.BaseFragment
 import java.io.*
 import java.util.*
 import java.util.concurrent.TimeUnit
+
 //TODO: REVIEW THE NEW IMPORTS
 import interfaces.RestAPI
 import kotlinx.android.synthetic.main.fragment_first.*
+import kotlinx.android.synthetic.main.fragment_first.view.*
 import models.Analyze
 import okhttp3.MediaType
 import okhttp3.MultipartBody
@@ -38,7 +44,7 @@ import retrofit2.converter.gson.GsonConverterFactory
 @Suppress("DEPRECATION")
 class FirstFragment : BaseFragment<FragmentFirstBinding>() {
 
-    //view
+    //view selfie
     override val viewModel: FirstViewModel by viewModels()
 
     //make dimensions/binding
@@ -48,24 +54,32 @@ class FirstFragment : BaseFragment<FragmentFirstBinding>() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
+//
+//        imageView.setColorFilter(
+//            ContextCompat.getColor(, R.color.COLOR_YOUR_COLOR),
+//
+//            android.graphics.PorterDuff.Mode.MULTIPLY);
         //go to the fragment that takes selfie picture
         binding.secondFragmentButton.setOnClickListener {
-            takePicturePressed()
+            takePicturePressed(CAPTURE_SELFIE_REQUEST_CODE)
+
+            //Displays the selfie image (if theres an image on the view model)
+            viewModel.expectedImageOutputPath?.also { setImageViewPicture(it, CAPTURE_SELFIE_REQUEST_CODE) }
         }
 
         //go to the fragment that takes ID picture
         binding.thirdFragmentButton.setOnClickListener {
-            takePicturePressed()
-        }
+            takePicturePressed(CAPTURE_ID_REQUEST_CODE)
 
-        //Displays the image (if theres an image on the view model)
-        viewModel.expectedImageOutputPath?.also { setImageViewPicture(it) }
+            //Displays the selfie image (if theres an image on the view model)
+            viewModel.expectedImageOutputPath?.also { setImageViewPicture(it, CAPTURE_ID_REQUEST_CODE) }
+        }
     }
 
-    //what happens after pressing OPEN SECOND FRAGMENT
+
+
     //output: starts the camera activity with all directories/photo IDs set up
-    private fun takePicturePressed() {
+    private fun takePicturePressed(requestCode: Int) {
 
         val directory = requireContext().getExternalFilesDir(Environment.DIRECTORY_PICTURES)
 
@@ -82,67 +96,88 @@ class FirstFragment : BaseFragment<FragmentFirstBinding>() {
         )
 
         //Save the output path locally
-        viewModel.expectedImageOutputPath = outputFile.absolutePath
+        if (requestCode == 700){
+            viewModel.expectedImageOutputPath = outputFile.absolutePath
+        }
+        else if (requestCode == 699){
+            viewModel.expectedImageOutputPathID = outputFile.absolutePath
+        }
+        else{ System.out.println("error with capture-image-request-code") }
 
+        //TODO: ACTION_IMAGE_CAPTURE_SECURE
+        //TODO: many pictures? how
         val pictureIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE).apply {
             putExtra(MediaStore.EXTRA_OUTPUT, outputFileUri)
         }
 
-        startActivityForResult(pictureIntent, CAPTURE_IMAGE_REQUEST_CODE)
+        startActivityForResult(pictureIntent, requestCode)
     }
 
-    //fragment manager
+    //fragment manager for selfie
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
 
-        if (requestCode == CAPTURE_IMAGE_REQUEST_CODE && resultCode == Activity.RESULT_OK) {
+        //IF THE SELFIE IS TAKEN FIRST
+        if (requestCode == CAPTURE_SELFIE_REQUEST_CODE && resultCode == Activity.RESULT_OK) {
             viewModel.expectedImageOutputPath?.also {
-                setImageViewPicture(it)
+                setImageViewPicture(it, CAPTURE_SELFIE_REQUEST_CODE)
+                Toast.makeText(context, "Selfie successfully captured!", Toast.LENGTH_SHORT).show()
+            }
+        }
+        //IF THE ID IS TAKEN FIRST
+        else if (requestCode == CAPTURE_ID_REQUEST_CODE && resultCode == Activity.RESULT_OK) {
+            viewModel.expectedImageOutputPathID?.also {
+                setImageViewPicture(it, CAPTURE_ID_REQUEST_CODE)
 
-                //TODO: FIX THIS NEW CODE
-                analyzePhoto(it)
-
-                Toast.makeText(context, "Photo successfully captured!", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, "ID successfully captured!", Toast.LENGTH_SHORT).show()
             }
         }
     }
 
-    private fun setImageViewPicture(filePath: String) {
+    //dynamically display the selfie or ID photo
+    private fun setImageViewPicture(filePath: String, requestCode: Int) {
         BitmapFactory.decodeFile(filePath)?.also {
-            binding.imageView.setImageBitmap(it)
+
+            if (requestCode == 700){
+                binding.imageView.setImageBitmap(it)
+            }
+            else if (requestCode == 699){
+                binding.imageViewID.setImageBitmap(it)
+            }
+            analyzePhoto(bitmap = it)
         }
     }
 
+    //dynamically display the selfie or ID photo
+//    private fun setVerifyImages(filePath: String, filePathID: String,
+//                                requestCode: Int, requestCodeID: Int) {
+//        BitmapFactory.decodeFile(filePath)?.also {
+//
+//            if (requestCode == 700){
+//                binding.imageView.setImageBitmap(it)
+//            }
+//            else if (requestCode == 699){
+//                binding.imageViewID.setImageBitmap(it)
+//            }
+//            verifyPhoto(bitmap = it, bitmapID = )
+//        }
+//    }
     fun analyzePhoto(bitmap: Bitmap) {
 
         //create a file to write bitmap data
-        val file = File(super.getContext()?.cacheDir, "test3");
-        file.createNewFile();
+        val file = File(super.getContext()?.cacheDir, "test3.jpg")
+        file.createNewFile()
 
         //Convert bitmap to byte array
-        val bos = ByteArrayOutputStream();
-        bitmap.compress(Bitmap.CompressFormat.PNG, 0 /*ignored for PNG*/, bos);
-        val bitmapdata = bos.toByteArray();
+        val bos = ByteArrayOutputStream()
+        bitmap.compress(Bitmap.CompressFormat.PNG, 0 /*ignored for PNG*/, bos)
+        val bitmapdata = bos.toByteArray()
+        file.writeBytes(bitmapdata)
 
-        //write the bytes in file
-        val fos: FileOutputStream? = null;
-        try {
-            val fos = FileOutputStream(file);
-        } catch (e: FileNotFoundException) {
-            e.printStackTrace();
-        }
-        try {
-            fos?.write(bitmapdata);
-            fos?.flush();
-            fos?.close();
-        } catch (e: IOException) {
-            e.printStackTrace();
-        }
-        //val file = File("/home/mahsa/Downloads/profile-photo.jpeg")
         val mFile = RequestBody.create(MediaType.parse("multipart/form-data"), file)
 
         val fileToUpload =
-            MultipartBody.Part.createFormData("image", file.name, mFile)
+            MultipartBody.Part.createFormData("file", file.name, mFile)
 
 
         val logging = HttpLoggingInterceptor()
@@ -151,7 +186,79 @@ class FirstFragment : BaseFragment<FragmentFirstBinding>() {
         httpClient.connectTimeout(1000, TimeUnit.SECONDS)
         httpClient.readTimeout(2000000, TimeUnit.SECONDS)
         httpClient.addInterceptor(logging)
-        //Execute Request!
+//        Execute Request!
+        val retrofit = Retrofit.Builder()
+            //.baseUrl("https://deepface-poatek.herokuapp.com/")
+            .baseUrl("https://deepface-app.herokuapp.com")
+            .addConverterFactory(GsonConverterFactory.create())
+            .client(httpClient.build())
+            .build()
+
+        val uploadImage: RestAPI =
+            retrofit.create(RestAPI::class.java)
+        val fileUpload: Call<Analyze> =
+            uploadImage.analyze(fileToUpload)
+        Log.e("URL", fileUpload.request().url().toString())
+
+        fileUpload.enqueue(object : Callback<Analyze> {
+            override fun onResponse(
+                call: Call<Analyze>,
+                response: Response<Analyze>
+            ) {
+                Toast.makeText(context, response.message(), Toast.LENGTH_SHORT).show()
+
+                val body = response.body()
+                val pred = body!!.prediction
+                val emo = pred!!.dominant_emotion
+                Toast.makeText(context, emo, Toast.LENGTH_SHORT).show()
+
+                Log.e(" Javab: ", response.message())
+                Log.e(" Javab: ", emo.toString())
+
+                //analyze_result_text.setText(response.message())
+                analyze_result_text.setText(emo.toString())
+
+            }
+
+            override fun onFailure(
+                call: Call<Analyze>,
+                t: Throwable
+            ) {
+                Log.e("Mahsa Rideman", "Error " + t.message)
+                Toast.makeText(context, "Error " + t.message, Toast.LENGTH_SHORT).show()
+
+
+            }
+        })
+        Log.e("Heivoooon", "Miay asln?")
+
+    }
+
+    fun verifyPhoto(bitmap: Bitmap, bitmapID: Bitmap) {
+
+        //create a file to write bitmap data
+        val file = File(super.getContext()?.cacheDir, "test3.jpg")
+        file.createNewFile()
+
+        //Convert bitmap to byte array
+        val bos = ByteArrayOutputStream()
+        bitmap.compress(Bitmap.CompressFormat.PNG, 0 /*ignored for PNG*/, bos)
+        val bitmapdata = bos.toByteArray()
+        file.writeBytes(bitmapdata)
+
+        val mFile = RequestBody.create(MediaType.parse("multipart/form-data"), file)
+
+        val fileToUpload =
+            MultipartBody.Part.createFormData("file", file.name, mFile)
+
+
+        val logging = HttpLoggingInterceptor()
+        logging.setLevel(HttpLoggingInterceptor.Level.BODY)
+        val httpClient: OkHttpClient.Builder = OkHttpClient.Builder()
+        httpClient.connectTimeout(1000, TimeUnit.SECONDS)
+        httpClient.readTimeout(2000000, TimeUnit.SECONDS)
+        httpClient.addInterceptor(logging)
+//        Execute Request!
         val retrofit = Retrofit.Builder()
             .baseUrl("https://deepface-app.herokuapp.com")
             .addConverterFactory(GsonConverterFactory.create())
@@ -171,8 +278,17 @@ class FirstFragment : BaseFragment<FragmentFirstBinding>() {
             ) {
                 Toast.makeText(context, response.message(), Toast.LENGTH_SHORT).show()
 
+                val body = response.body()
+                val pred = body!!.prediction
+                val emo = pred!!.dominant_emotion
+                Toast.makeText(context, emo, Toast.LENGTH_SHORT).show()
+
                 Log.e(" Javab: ", response.message())
-                analyze_result_text.setText(response.message())
+                Log.e(" Javab: ", emo.toString())
+
+                //analyze_result_text.setText(response.message())
+                analyze_result_text.setText(emo.toString())
+
             }
 
             override fun onFailure(
@@ -187,10 +303,22 @@ class FirstFragment : BaseFragment<FragmentFirstBinding>() {
         })
         Log.e("Heivoooon", "Miay asln?")
 
+
+    }
+
+    fun uploadVerify(){
+        binding.uploadImages.setOnClickListener {
+            takePicturePressed(CAPTURE_ID_REQUEST_CODE)
+
+            //Displays the selfie image (if theres an image on the view model)
+            viewModel.expectedImageOutputPath?.also { setImageViewPicture(it, CAPTURE_ID_REQUEST_CODE) }
+        }
     }
 
     companion object {
-        private const val CAPTURE_IMAGE_REQUEST_CODE = 700
+        private const val CAPTURE_SELFIE_REQUEST_CODE = 700
+        private const val CAPTURE_ID_REQUEST_CODE = 699
+        private const val UPLOAD_IMAGE_CODE = 600
     }
 
 }
