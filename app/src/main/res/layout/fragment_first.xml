@@ -20,14 +20,14 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="3dp"
-            android:text="@string/open_second_fragment" />
+            android:text="take selfie" />
 
         <Button
             android:id="@+id/thirdFragmentButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="3dp"
-            android:text="@string/open_third_fragment" />
+            android:text="take ID photo" />
 
         <TextView
             android:id="@+id/analyze_result_text"

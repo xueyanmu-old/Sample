@@ -9,9 +9,9 @@ class FirstViewModel : ViewModel() {
 
     val viewModelInitDate = MutableLiveData<String>()
 
-    var expectedImageOutputPath: String? = null
+    var selfieImageOutputPath: String? = null
 
-    var expectedImageOutputPathID: String? = null
+    var idImageOutputPath: String? = null
 
     init {
         refreshInitializationDate()
