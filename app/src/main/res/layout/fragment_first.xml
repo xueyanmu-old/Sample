@@ -7,18 +7,21 @@
             type="com.poatek.sample.ui.scenes.first.FirstViewModel" />
     </data>
 
-    <LinearLayout
-        android:orientation="vertical"
+    <GridLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="540dp"
+        android:layout_margin="50dp"
+        android:columnCount="16"
+        android:rowCount="16"
         android:gravity="center"
         tools:context="ui.scenes.first.FirstFragment">
 
-        <!-- TODO: fix new xml id-->
         <Button
             android:id="@+id/secondFragmentButton"
-            android:layout_width="wrap_content"
+            android:layout_width="150dp"
             android:layout_height="wrap_content"
+            android:layout_row="1"
+            android:layout_column="0"
             android:layout_margin="3dp"
             android:text="take selfie" />
 
@@ -26,6 +29,8 @@
             android:id="@+id/thirdFragmentButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_row="1"
+            android:layout_column="1"
             android:layout_margin="3dp"
             android:text="take ID photo" />
 
@@ -39,22 +44,29 @@
             android:id="@+id/imageView"
             android:layout_width="150dp"
             android:layout_height="150dp"
+            android:layout_row="2"
+            android:layout_column="0"
             android:layout_margin="3dp"
-            android:src="@drawable/image_border"
-            android:contentDescription="@string/selfie_here" />
+            android:contentDescription="@string/selfie_here"
+            android:src="@drawable/image_border" />
 
         <ImageView
             android:id="@+id/imageViewID"
             android:layout_width="150dp"
             android:layout_height="150dp"
+            android:layout_row="2"
+            android:layout_column="1"
+            android:layout_gravity="left"
             android:layout_margin="3dp"
-            android:src="@drawable/image_border"
-            android:contentDescription="@string/id_photo_here" />
+            android:contentDescription="@string/id_photo_here"
+            android:src="@drawable/image_border" />
 
         <Button
             android:id="@+id/uploadImages"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_row="14"
+            android:layout_column="0"
             android:layout_margin="3dp"
             android:text="@string/upload_images" />
 
@@ -62,10 +74,11 @@
             android:id="@+id/viewModelDate"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_row="15"
+            android:layout_column="0"
             android:layout_marginTop="12dp"
             android:text="@{viewModel.viewModelInitDate}"
             tools:text="ViewModel initialized..." />
-
-    </LinearLayout>
+    </GridLayout>
 </layout>
 

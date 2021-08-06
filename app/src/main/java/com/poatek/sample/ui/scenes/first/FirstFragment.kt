@@ -217,20 +217,6 @@ class FirstFragment : BaseFragment<FragmentFirstBinding>() {
         val file = File(pathID)
         val fileSelfie = File(pathSelfie)
 
-
-//        //create a file to write bitmap data
-//        val file = File(super.getContext()?.cacheDir, "test3.jpg")
-//        file.createNewFile()
-//
-//        Bitmap bitmap = pathID
-//        //Convert bitmap to byte array
-//        val bos = ByteArrayOutputStream()
-//        bitmap.compress(Bitmap.CompressFormat.PNG, 0 /*ignored for PNG*/, bos)
-//        val bitmapdata = bos.toByteArray()
-//        file.writeBytes(bitmapdata)
-
-
-
         val filesToUpload = listOf(
             MultipartBody.Part.createFormData("file", fileSelfie.name, RequestBody.create(MediaType.parse("multipart/form-data"), fileSelfie)),
             MultipartBody.Part.createFormData("file", file.name, RequestBody.create(MediaType.parse("multipart/form-data"), file))
@@ -253,6 +239,7 @@ class FirstFragment : BaseFragment<FragmentFirstBinding>() {
 //        Execute Request!
         val retrofit = Retrofit.Builder()
             .baseUrl("https://deepface-app.herokuapp.com")
+//            .baseUrl("https://demo.kairos.com/verify/send-to-api/")
             .addConverterFactory(GsonConverterFactory.create())
             .client(httpClient.build())
             .build()
@@ -268,33 +255,24 @@ class FirstFragment : BaseFragment<FragmentFirstBinding>() {
                 response: Response<VerificationResponse>
             ) {
                 Toast.makeText(context, response.message(), Toast.LENGTH_SHORT).show()
-
                 val body = response.body()
                 val result = body?.result
                 Toast.makeText(context, result.toString(), Toast.LENGTH_SHORT).show()
 
-
-
                 //analyze_result_text.setText(response.message())
                 analyze_result_text.text = result?.verified?.toString()
-
             }
-
             override fun onFailure(
                 call: Call<VerificationResponse>,
                 t: Throwable
             ) {
                 Log.e("Mahsa Rideman", "Error " + t.message)
                 Toast.makeText(context, "Error " + t.message, Toast.LENGTH_SHORT).show()
-
-
             }
         })
         Log.e("Heivoooon", "Miay asln?")
 
-
     }
-
 
     companion object {
         private const val CAPTURE_SELFIE_REQUEST_CODE = 700
